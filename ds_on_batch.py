@@ -43,7 +43,12 @@ def split_audio(filename, snippet_len):
 
     # https://unix.stackexchange.com/questions/280767/how-do-i-split-an-audio-file-into-multiple
 
-    subprocess.run(f"ffmpeg -i {filename} -f segment -segment_time {snippet_len} -c copy dsfile%03d.mp3")
+    # TODO: make sure we get audio sent up in .WAV format, that is the only kind DeepSpeech can process
+    # seems like if the input is .wav, the outputs will be .wav as well, so we just need to make sure
+    # we supply .wav files
+    # so we could simply stipulate that this only takes .wav files or we could try to introduce
+    # automatic file conversion as part of the project
+    subprocess.run(f"ffmpeg -i {filename} -f segment -segment_time {snippet_len} -c copy dsfile%03d.wav")
 
 
 def clean_working_directory():
@@ -55,9 +60,9 @@ def clean_working_directory():
     # NOTE: just a first draft, check that this works
     # this will also have to clean out the input S3 bucket
 
-    # TODO: make sure we get audio sent up in .WAV format, that is the only kind it can process
+    
     for i in range(1000):
-        subprocess.run(["rm", f"dsfile{i:03d}.mp3"])
+        subprocess.run(["rm", f"dsfile{i:03d}.wav"])
 
 
 def main():
@@ -73,6 +78,7 @@ def main():
     except:
         usage()
 
+    # might want to change this; I don't know what the runtime is on these things
     if max_snippet_len > 895:
         max_snippet_len = 895
 
@@ -88,7 +94,13 @@ def main():
                 pass 
 
     # now we go fetch the results from the output S3 bucket
-    # maybe the simplest, albeit naive, way of doing this is to 
+    # maybe the simplest, albeit naive, way of doing this is to repeatedly ping the bucket for each
+    # file until it appears and once it does, grab it
+    # after that happens, recompile the results
+
+
+
+    # thoughts below
 
     # thinking the easiest way of doing this is to use AWS Lambda and chop up the 
     # audio files into user-defined pieces, max 14 minutes, 55 seconds to account for Lambda timeout
