@@ -100,6 +100,9 @@ def main():
     # https://stackoverflow.com/questions/49163099/writing-a-file-to-s3-using-lambda-in-python-with-aws
     # our output bucket is on Ryan's account and I'll fetch the details at some point
 
+    # this guide might also be useful:
+    # https://docs.aws.amazon.com/pinpoint/latest/developerguide/tutorials-importing-data-create-python-package.html
+
     # one advantage of doing it this way is that ffmpeg will inadvertently generate some number of files
     # which we will then send up to the S3 bucket, triggering an identical amount of Lambda function calls.
     # in that way, we can still control the parralelization of the system, just in a different manner
