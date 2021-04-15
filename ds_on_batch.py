@@ -133,6 +133,9 @@ def main():
     # then zip that virtualenv and send it up to the the machine we want to use
     # set the PATH and the PYTHONPATH such that the machine importing the package will look in the package
     # for the executable
+    # then it's a simple matter of calling the command line executable like
+    # deepspeech --model blahblah.tflite --audio blahblah.wav 
+    # and grabbing the resulting output to be recompiled in this program
     # practice doing this on the student machines first, then do it on Lambda (or Condor, EC2, whatever)
     
 
