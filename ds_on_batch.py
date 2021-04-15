@@ -124,6 +124,16 @@ def main():
     # machines with DeepSpeech on them in order to set up a WorkQueue or something
     # or better yet, just do all of this on Notre Dame's HTCondor. That's starting to seem like an easier
     # solution
+
+    # Thain's advice for however we end up doing this:
+    # we need to package all of the dependencies (DeepSpeech itself, model, maybe scorer) and send them to the
+    # machines that will be doing the execution
+    # I'm pretty sure I have the dependencies packaged already. If it's not done right, he said to use conda
+    # to create a virtualenv, conda install deepspeech (or conda install pip -> pip install deepspeech),
+    # then zip that virtualenv and send it up to the the machine we want to use
+    # set the PATH and the PYTHONPATH such that the machine importing the package will look in the package
+    # for the executable
+    # practice doing this on the student machines first, then do it on Lambda (or Condor, EC2, whatever)
     
 
 if __name__ == "__main__":
