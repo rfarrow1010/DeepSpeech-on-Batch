@@ -54,6 +54,8 @@ def clean_working_directory():
     # we are going to assume that the filenames can range from dsfile000.mp3 to dsfile999.mp3
     # NOTE: just a first draft, check that this works
     # this will also have to clean out the input S3 bucket
+
+    # TODO: make sure we get audio sent up in .WAV format, that is the only kind it can process
     for i in range(1000):
         subprocess.run(["rm", f"dsfile{i:03d}.mp3"])
 
