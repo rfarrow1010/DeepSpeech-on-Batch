@@ -5,12 +5,14 @@
 # to be done. Can be run multiple times by a higher level script if necessary for multiple
 # input audio/video files.
 
-import sys, subprocess
+import sys, os, subprocess
 
 def usage():
     print('''Usage:
-    ./ds_on_batch.py file.mp4 -m numberOfMachines 
-    Your local machine must have ffmpeg and mp3info.
+    ./ds_on_batch.py file.mp4 -m maxSnippetLength 
+    Your local machine must have ffmpeg. 
+    If maxSnippetLength exceeds 895, the program will proceed
+    as if the user had input 895. Must be an integer representing seconds.
     ''')
     exit(0)
 
@@ -22,13 +24,13 @@ def check_dependencies():
     '''
     try:
         subprocess.check_output(["which", "ffmpeg"])
-        subprocess.check_output(["which", "mp3info"])
+        # subprocess.check_output(["which", "mp3info"])
     except Exception as e:
         print(e)
         usage()
 
 
-def split_audio(filename):
+def split_audio(filename, snippet_len):
     '''
     Splits up the given audio file into
     smaller audio files using ffmpeg. The files will appear in the working
@@ -41,7 +43,7 @@ def split_audio(filename):
 
     # https://unix.stackexchange.com/questions/280767/how-do-i-split-an-audio-file-into-multiple
 
-    subprocess.run(f"ffmpeg -i {filename} -f segment -segment_time 60 -c copy dsfile%03d.mp3")
+    subprocess.run(f"ffmpeg -i {filename} -f segment -segment_time {snippet_len} -c copy dsfile%03d.mp3")
 
 
 def clean_working_directory():
@@ -63,11 +65,31 @@ def main():
     check_dependencies()
 
     # parse command line
-    audio_filename = sys.argv[1]
-    # number_of_machines = int(sys.argv[3])
+    try:
+        audio_filename = sys.argv[1]
+        max_snippet_len = int(sys.argv[3])
+    except:
+        usage()
 
-    # on second thought: thinking the easiest way of doing this is to use AWS Lambda and chop up the 
-    # audio files into tiny, 1 to 2-minute pieces
+    if max_snippet_len > 895:
+        max_snippet_len = 895
+
+    split_audio(audio_filename, max_snippet_len)
+
+    # go through every item in local directory, operate on any file that contains 
+    # the dsfile prefix
+    # important that this local directory stay clean for this reason
+    for entry in os.scandir():
+        if entry.is_file():
+            if "dsfile" in entry:
+                # send it up to the S3 bucket
+                pass 
+
+    # now we go fetch the results from the output S3 bucket
+    # maybe the simplest, albeit naive, way of doing this is to 
+
+    # thinking the easiest way of doing this is to use AWS Lambda and chop up the 
+    # audio files into user-defined pieces, max 14 minutes, 55 seconds to account for Lambda timeout
     # we can then upload each of those to S3 and trigger the Lambda function, which will run DeepSpeech
     # on it and send the output to another bucket, from which our client can then fetch the output
     # example of something similar:
@@ -76,6 +98,15 @@ def main():
     # https://stackoverflow.com/questions/49163099/writing-a-file-to-s3-using-lambda-in-python-with-aws
     # our output bucket is on Ryan's account and I'll fetch the details at some point
 
+    # one advantage of doing it this way is that ffmpeg will inadvertently generate some number of files
+    # which we will then send up to the S3 bucket, triggering an identical amount of Lambda function calls.
+    # in that way, we can still control the parralelization of the system, just in a different manner
+
+    # however, it might not be possible to do this in a Lambda function unless we use the Python streaming
+    # version of DeepSpeech (which I don't understand). so we might have to just set up a bunch of EC2 
+    # machines with DeepSpeech on them in order to set up a WorkQueue or something
+    # or better yet, just do all of this on Notre Dame's HTCondor. That's starting to seem like an easier
+    # solution
     
 
 if __name__ == "__main__":
