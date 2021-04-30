@@ -5,6 +5,7 @@
 # to be done. Can be run multiple times by a higher level script if necessary for multiple
 # input audio/video files.
 
+from work_queue import *
 import sys, os, subprocess
 
 def usage():
@@ -56,16 +57,18 @@ def clean_working_directory():
     Cleans the working directory of any procedurally generated audio files.
     Returns void.
     '''
-    # we are going to assume that the filenames can range from dsfile000.mp3 to dsfile999.mp3
-    # NOTE: just a first draft, check that this works
-    # this will also have to clean out the input S3 bucket
 
-    
-    for i in range(1000):
-        subprocess.run(["rm", f"dsfile{i:03d}.wav"])
+    os.system("rm dsfile*.wav dsfile*.txt output.txt")
 
 
 def main():
+    # variables
+    # NOTE: need to figure out how we are going to get deepspeech onto those computers;
+    # I don't think it will be sufficient to just log on and install it, but I could be wrong
+    # put the path to the deepspeech executable here when we figure that out
+    # https://cctools.readthedocs.io/en/latest/work_queue/examples/work_queue_example.py
+    deepspeech_path = ""
+
     # run script here
     # start by cleaning working directory and checking dependencies
     clean_working_directory()
@@ -84,19 +87,66 @@ def main():
 
     split_audio(audio_filename, max_snippet_len)
 
-    # go through every item in local directory, operate on any file that contains 
-    # the dsfile prefix
-    # important that this local directory stay clean for this reason
+    # set up WorkQueue; using this port number for now, may be changed
+    try:
+        q = WorkQueue(port=9037)
+    except:
+        print("Instantiation of WorkQueue failed!")
+        exit(1)
+
+    print(f"listening on port {q.port}")
+
+    # run deepspeech on every .wav file that we produced from segmenting
     for entry in os.scandir():
         if entry.is_file():
-            if "dsfile" in entry:
-                # send it up to the S3 bucket
-                pass 
+            if "dsfile" in entry.name and ".wav" in entry.name:
+                # create a task for this file and send it to WorkQueue
+                # referencing https://cctools.readthedocs.io/en/latest/work_queue/examples/work_queue_example.py
+                audio = entry.name 
+                model = "deepspeech-0.9.3-models.pbmm"
+                scorer = "deepspeech-0.9.3-models.scorer"
+                outfile = entry.name[:-4] + ".txt"
+                command = "deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
+                
+                t = Task(command)
 
-    # now we go fetch the results from the output S3 bucket
-    # maybe the simplest, albeit naive, way of doing this is to repeatedly ping the bucket for each
-    # file until it appears and once it does, grab it
-    # after that happens, recompile the results
+                # specifying input/output files; model and scorer files get cached, wav and txt files do not
+                t.specify_file(audio, audio, WORK_QUEUE_INPUT, cache=False)
+                t.specify_file(model, model, WORK_QUEUE_INPUT, cache=True)
+                t.specify_file(scorer, scorer, WORK_QUEUE_INPUT, cache=True)
+                t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
+
+                taskid = q.submit(t)
+                print(f"submitted task #{taskid}")
+
+    print("")
+    print("waiting for tasks to complete...")
+
+    while not q.empty():
+        t = q.wait(5)
+        if t:
+            print(f"task #{t.id} complete with return code {t.return_status}")
+            if t.return_status != 0:
+                # task failed; handle error if we want
+                pass
+
+    print("all WorkQueue tasks complete!")
+
+    # concatenate the outputs of the segments
+    o = open("output.txt", "w")
+    for entry in os.scandir():
+        if entry.is_file():
+            if "dsfile" in entry.name and ".txt" in entry.name:
+                f = open(entry.name, "r")
+                o.write(f.read().strip() + " ")
+                f.close()
+    
+    o.write("\n")
+    o.close()
+
+    # clean intermediate files
+    os.system("rm dsfile*.wav dsfile*.txt")
+
 
 
 
