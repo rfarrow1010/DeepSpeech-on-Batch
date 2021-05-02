@@ -72,18 +72,18 @@ def main():
     # run script here
     # start by cleaning working directory and checking dependencies
     clean_working_directory()
-    check_dependencies()
+    # check_dependencies()
 
     # parse command line
-    try:
-        audio_filename = sys.argv[1]
-        max_snippet_len = int(sys.argv[3])
-    except:
-        usage()
+    # try:
+    #     audio_filename = sys.argv[1]
+    #     max_snippet_len = int(sys.argv[3])
+    # except:
+    #     usage()
 
     # might want to change this; I don't know what the runtime is on these things
-    if max_snippet_len > 895:
-        max_snippet_len = 895
+    # if max_snippet_len > 895:
+    #     max_snippet_len = 895
 
     # split_audio(audio_filename, max_snippet_len)
 
