@@ -85,7 +85,7 @@ def main():
     if max_snippet_len > 895:
         max_snippet_len = 895
 
-    split_audio(audio_filename, max_snippet_len)
+    # split_audio(audio_filename, max_snippet_len)
 
     # set up WorkQueue; using this port number for now, may be changed
     try:
@@ -102,23 +102,24 @@ def main():
             if "dsfile" in entry.name and ".wav" in entry.name:
                 # create a task for this file and send it to WorkQueue
                 # referencing https://cctools.readthedocs.io/en/latest/work_queue/examples/work_queue_example.py
-                audio = entry.name 
-                model = "deepspeech-0.9.3-models.pbmm"
-                scorer = "deepspeech-0.9.3-models.scorer"
-                outfile = entry.name[:-4] + ".txt"
-                command = "echo hello"
+    for i in range(1000):
+                # audio = entry.name 
+                # model = "deepspeech-0.9.3-models.pbmm"
+                # scorer = "deepspeech-0.9.3-models.scorer"
+        outfile = entry.name[:-4] + ".txt"
+        command = f"echo hello > {outfile}"
                 # command = "deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
                 
-                t = Task(command)
+        t = Task(command)
 
                 # specifying input/output files; model and scorer files get cached, wav and txt files do not
-                t.specify_file(audio, audio, WORK_QUEUE_INPUT, cache=False)
-                t.specify_file(model, model, WORK_QUEUE_INPUT, cache=True)
-                t.specify_file(scorer, scorer, WORK_QUEUE_INPUT, cache=True)
-                t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
+                # t.specify_file(audio, audio, WORK_QUEUE_INPUT, cache=False)
+                # t.specify_file(model, model, WORK_QUEUE_INPUT, cache=True)
+                # t.specify_file(scorer, scorer, WORK_QUEUE_INPUT, cache=True)
+        t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
 
-                taskid = q.submit(t)
-                print(f"submitted task #{taskid}")
+        taskid = q.submit(t)
+        print(f"submitted task #{taskid}")
 
     print("")
     print("waiting for tasks to complete...")
