@@ -97,16 +97,16 @@ def main():
     print(f"listening on port {q.port}")
 
     # run deepspeech on every .wav file that we produced from segmenting
-    for entry in os.scandir():
-        if entry.is_file():
-            if "dsfile" in entry.name and ".wav" in entry.name:
+    # for entry in os.scandir():
+    #     if entry.is_file():
+    #         if "dsfile" in entry.name and ".wav" in entry.name:
                 # create a task for this file and send it to WorkQueue
                 # referencing https://cctools.readthedocs.io/en/latest/work_queue/examples/work_queue_example.py
     for i in range(1000):
                 # audio = entry.name 
                 # model = "deepspeech-0.9.3-models.pbmm"
                 # scorer = "deepspeech-0.9.3-models.scorer"
-        outfile = entry.name[:-4] + ".txt"
+        outfile = f"dsfile{i:03d}.txt"
         command = f"echo hello > {outfile}"
                 # command = "deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
                 
