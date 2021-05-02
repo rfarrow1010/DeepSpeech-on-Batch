@@ -102,7 +102,7 @@ def main():
     #         if "dsfile" in entry.name and ".wav" in entry.name:
                 # create a task for this file and send it to WorkQueue
                 # referencing https://cctools.readthedocs.io/en/latest/work_queue/examples/work_queue_example.py
-    for i in range(1000):
+    for i in range(100):
                 # audio = entry.name 
                 # model = "deepspeech-0.9.3-models.pbmm"
                 # scorer = "deepspeech-0.9.3-models.scorer"
