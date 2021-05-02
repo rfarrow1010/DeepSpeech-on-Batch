@@ -5,7 +5,6 @@
 # to test, runs all locally
 
 import sys, os, subprocess
-import deepspeech
 
 def usage():
     print('''Usage:
@@ -18,8 +17,7 @@ def usage():
 
 def check_dependencies():
     '''
-    Checks that this system has ffmpeg and mp3info on it. If not,
-    calls usage.
+    Checks that this system has ffmpeg on it. If not, calls usage.
     '''
     try:
         subprocess.check_output(["which", "ffmpeg"])
@@ -34,7 +32,30 @@ def split_audio(filename, snippet_len):
     directory and will be named procedurally. Returns void.
     '''
 
-    os.system("ffmpeg -i " + filename + " -f segment -segment_time " + str(snippet_len) + " -c copy dsfile%03d.wav")
+    # convert to .wav if not in .wav format
+    # FFmpeg supports 100+ audio types, and will throw catchable errors if it cannot convert
+    if ".wav" not in filename:
+        try:
+            os.system("ffmpeg -i " + filename + " " + filename[:-4] + ".wav")
+            filename = filename[:-4] + ".wav"
+        except Exception as e:
+            print(e)
+            exit(1)
+
+    # split
+    try:
+        os.system("ffmpeg -i " + filename + " -f segment -segment_time " + str(snippet_len) + " -c copy dsfile%03d.wav -loglevel error")
+    except Exception as e:
+        print(e)
+        exit(1)
+
+    # split after an offset, used to implement correction
+    # try:
+    #     os.system("ffmpeg -i " + filename + " -f segment -segment_time " + str(snippet_len) + " -output_ts_offset " + str(snippet_len / 2) + " -c copy OFFdsfile%03d.wav -loglevel error")
+    # except Exception as e:
+    #     print(e)
+    #     exit(1)
+    return
 
 def clean_working_directory():
     '''
@@ -43,6 +64,7 @@ def clean_working_directory():
     '''
 
     os.system("rm dsfile*.wav dsfile*.txt output.txt")
+    return
 
 def main():
     clean_working_directory()
@@ -65,17 +87,40 @@ def main():
     for entry in os.scandir():
         if entry.is_file():
             if "dsfile" in entry.name and ".wav" in entry.name:
+
+                # run locally
                 os.system("deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt")
-                # send it up to the S3 bucket
-    
+                # result = subprocess.run([
+                #     "deepspeech", 
+                #     "--model", 
+                #     "models/deepspeech-0.9.3-models.pbmm", 
+                #     "--scorer",
+                #     "models/deepspeech-0.9.3-models.scorer",
+                #     "--audio",
+                #     entry.name
+                # ])
+                # outfile = open(entry.name[:-4] + ".txt", "w")
+                # outfile.write(result.stdout)
+
     # concatenate the outputs of the segments
     o = open("output.txt", "w")
-    for entry in os.scandir():
-        if entry.is_file():
-            if "dsfile" in entry.name and ".txt" in entry.name:
-                f = open(entry.name, "r")
-                o.write(f.read().strip() + " ")
-                f.close()
+    f_num = 0
+
+    while os.path.exists("dsfile%03d.txt" % f_num):
+        f = open("dsfile%03d.txt" % f_num, "r")
+        o.write(f.read().strip() + " ")
+        f.close()
+        f_num += 1
+
+    # for entry in os.scandir():
+    #     if entry.is_file():
+    #         print(entry.name)
+    #         print(f_num)
+    #         if "dsfile" in entry.name and str(f_num) + ".txt" in entry.name:
+    #             f = open(entry.name, "r")
+    #             o.write(f.read().strip() + " ")
+    #             f.close()
+    #             f_num += 1
     
     o.write("\n")
     o.close()
