@@ -119,7 +119,7 @@ def main():
                 t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
 
                 taskid = q.submit(t)
-                print("submitted task #" + taskid)
+                print("submitted task #" + str(taskid))
 
     print("")
     print("waiting for tasks to complete...")
@@ -127,7 +127,7 @@ def main():
     while not q.empty():
         t = q.wait(5)
         if t:
-            print("task #" + t.id + " complete with return code " + t.return_status)
+            print("task #" + str(t.id) + " complete with return code " + str(t.return_status))
             if t.output:
                 print("DEBUG INFO" + t.output + "\n")
             if t.return_status != 0:
