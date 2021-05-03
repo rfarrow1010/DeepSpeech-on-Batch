@@ -105,7 +105,7 @@ def main():
                 model = "./models/deepspeech-0.9.3-models.tflite"
                 # scorer = "./models/deepspeech-0.9.3-models.scorer"
                 outfile = entry.name[:-4] + ".txt"
-                command = "unzip models/deepspeech-venv-tflite.zip -d models/; export PATH=models/deepspeech-venv-tflite/bin:$PATH; ./models/deepspeech-venv-tflite/bin/deepspeech --model models/deepspeech-0.9.3-models.tflite --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
+                command = "deepspeech --model deepspeech-0.9.3-models.tflite --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
                 # command = "unzip models/deepspeech-venv-tflite.zip -d models/; export PATH=models/deepspeech-venv-tflite/bin:$PATH; deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
                 executable = "models/deepspeech-venv-tflite.zip"
 
