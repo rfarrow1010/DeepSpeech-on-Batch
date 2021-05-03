@@ -93,7 +93,7 @@ def main():
         print("Instantiation of WorkQueue failed!")
         exit(1)
 
-    print("listening on port " + q.port)
+    print("listening on port " + str(q.port))
 
     # run deepspeech on every .wav file that we produced from segmenting
     for entry in os.scandir():
