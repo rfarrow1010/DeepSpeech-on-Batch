@@ -93,7 +93,7 @@ def main():
         print("Instantiation of WorkQueue failed!")
         exit(1)
 
-    print(f"listening on port {q.port}")
+    print("listening on port " + q.port)
 
     # run deepspeech on every .wav file that we produced from segmenting
     for entry in os.scandir():
@@ -119,7 +119,7 @@ def main():
                 t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
 
                 taskid = q.submit(t)
-                print(f"submitted task #{taskid}")
+                print("submitted task #" + taskid)
 
     print("")
     print("waiting for tasks to complete...")
@@ -127,7 +127,7 @@ def main():
     while not q.empty():
         t = q.wait(5)
         if t:
-            print(f"task #{t.id} complete with return code {t.return_status}")
+            print("task #" + t.id + " complete with return code " + t.return_status)
             if t.output:
                 print("DEBUG INFO" + t.output + "\n")
             if t.return_status != 0:
