@@ -89,6 +89,7 @@ def main():
     # set up WorkQueue; using this port number for now, may be changed
     try:
         q = WorkQueue(debug_log="debug.log", name="BigAudio", port=9037)
+        q.name = "dsfinal"
     except:
         print("Instantiation of WorkQueue failed!")
         exit(1)
