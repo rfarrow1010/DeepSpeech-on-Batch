@@ -102,7 +102,7 @@ def main():
                 
                 # create a task for this file and send it to WorkQueue
                 audio = entry.name 
-                model = "./models/deepspeech-0.9.3-models.tflite"
+                model = "deepspeech-0.9.3-models.tflite"
                 # scorer = "./models/deepspeech-0.9.3-models.scorer"
                 outfile = entry.name[:-4] + ".txt"
                 command = "deepspeech --model deepspeech-0.9.3-models.tflite --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
