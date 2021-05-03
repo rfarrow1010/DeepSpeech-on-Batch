@@ -102,18 +102,18 @@ def main():
                 
                 # create a task for this file and send it to WorkQueue
                 audio = entry.name 
-                model = "models/deepspeech-0.9.3-models.pbmm"
-                scorer = "models/deepspeech-0.9.3-models.scorer"
+                model = "./models/deepspeech-0.9.3-models.pbmm"
+                scorer = "./models/deepspeech-0.9.3-models.scorer"
                 outfile = entry.name[:-4] + ".txt"
                 command = "export PATH=~/.local/bin:$PATH; deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
                 # command = "unzip models/deepspeech-venv-tflite.zip -d models/; export PATH=models/deepspeech-venv-tflite/bin:$PATH; deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt"
-                executable = "models/deepspeech-venv-tflite.zip"
+                # executable = "models/deepspeech-venv-tflite.zip"
 
                 t = Task(command)
 
                 # specify input/output files; cache the executable, the model, and the scorer only
                 t.specify_file(audio, audio, WORK_QUEUE_INPUT, cache=False)
-                t.specify_file(executable, executable, WORK_QUEUE_INPUT, cache=True)
+                # t.specify_file(executable, executable, WORK_QUEUE_INPUT, cache=True)
                 t.specify_file(model, model, WORK_QUEUE_INPUT, cache=True)
                 t.specify_file(scorer, scorer, WORK_QUEUE_INPUT, cache=True)
                 t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
