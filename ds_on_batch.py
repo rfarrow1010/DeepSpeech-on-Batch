@@ -127,7 +127,8 @@ def main():
         t = q.wait(5)
         if t:
             print(f"task #{t.id} complete with return code {t.return_status}")
-            print("DEBUG INFO" + t.output + "\n")
+            if t.output:
+                print("DEBUG INFO" + t.output + "\n")
             if t.return_status != 0:
                 # task failed; handle error if we want
                 pass
