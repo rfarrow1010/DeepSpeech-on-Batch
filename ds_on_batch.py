@@ -119,9 +119,9 @@ def main():
                 t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
 
                 # restrict resources, thus allowing 8 of these to be run in parallel on t2.2xlarge
-                # one core (critical), 4 GB memory (maybe not quite as critical)
+                # one core (critical), approx. 4 GB memory (maybe not quite as critical)
                 t.specify_cores(1)
-                t.specify_memory(4096) # defined in megabytes
+                t.specify_memory(4000) # defined in megabytes
 
                 taskid = q.submit(t)
                 print("submitted task #" + str(taskid))
