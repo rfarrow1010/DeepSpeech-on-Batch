@@ -118,6 +118,11 @@ def main():
                 # t.specify_file(scorer, scorer, WORK_QUEUE_INPUT, cache=True)
                 t.specify_file(outfile, outfile, WORK_QUEUE_OUTPUT, cache=False)
 
+                # restrict resources, thus allowing 8 of these to be run in parallel on t2.2xlarge
+                # one core (critical), 4 GB memory (maybe not quite as critical)
+                t.specify_cores(1)
+                t.specify_memory(4096) # defined in megabytes
+
                 taskid = q.submit(t)
                 print("submitted task #" + str(taskid))
 
@@ -170,3 +175,10 @@ if __name__ == "__main__":
     # deepspeech --model blahblah.tflite --audio blahblah.wav 
     # and grabbing the resulting output to be recompiled in this program
     # practice doing this on the student machines first, then do it on Lambda (or Condor, EC2, whatever)
+
+
+    # notes on scaling up EC2:
+
+    # can define the task as only requiring one core and then the worker will perform 8 of them at a time
+    # can snapshot an image into S3 or EBS and then use it to make more EC2 machines
+    # image has been snapshotted; just need to make the machines
