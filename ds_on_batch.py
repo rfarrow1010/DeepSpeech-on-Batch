@@ -154,6 +154,9 @@ def main():
     o.write("\n")
     o.close()
 
+    # check against the rubric with wdiff
+    os.system("wdiff -s rubric.txt output.txt")
+
     # clean intermediate files
     # os.system("rm dsfile*.wav dsfile*.txt")
 
