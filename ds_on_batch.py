@@ -121,6 +121,7 @@ def main():
                 # restrict resources, thus allowing 8 of these to be run in parallel on t2.2xlarge
                 # one core (critical), approx. 4 GB memory (maybe not quite as critical)
                 t.specify_cores(1)
+                t.specify_memory(1000)
 
                 taskid = q.submit(t)
                 print("submitted task #" + str(taskid))
