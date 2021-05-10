@@ -158,7 +158,7 @@ def main():
     os.system("wdiff -s rubric.txt output.txt")
 
     # clean intermediate files
-    # os.system("rm dsfile*.wav dsfile*.txt")
+    os.system("rm dsfile*.wav dsfile*.txt")
 
 if __name__ == "__main__":
     main()
