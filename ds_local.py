@@ -8,8 +8,8 @@ import sys, os, subprocess
 
 def usage():
     print('''Usage:
-    ./ds_on_batch.py file.mp4 -m maxSnippetLength 
-    Your local machine must have ffmpeg. 
+    ./ds_local.py file.mp4 -m maxSnippetLength 
+    Your machine must have ffmpeg. 
     If maxSnippetLength exceeds 895, the program will proceed
     as if the user had input 895. Must be an integer representing seconds.
     ''')
@@ -89,7 +89,7 @@ def main():
             if "dsfile" in entry.name and ".wav" in entry.name:
 
                 # run locally
-                os.system("deepspeech --model models/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech-0.9.3-models.scorer --audio " + entry.name + " > " + entry.name[:-4] + ".txt")
+                os.system("deepspeech --model deepspeech-0.9.3-models.tflite --audio " + entry.name + " > " + entry.name[:-4] + ".txt")
                 # result = subprocess.run([
                 #     "deepspeech", 
                 #     "--model", 
